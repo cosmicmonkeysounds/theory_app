@@ -12,25 +12,20 @@
 #include "Metronome.h"
 
 //==============================================================================
+
 Metronome::Metronome()
-{
-    buffer.clear();
-
-}
-
-Metronome::~Metronome()
-{
-}
-
-void Metronome::paint (juce::Graphics& g)
 {
     
 }
 
-void Metronome::resized()
+Metronome::~Metronome()
 {
-
+    
 }
+
+//==============================================================================
+
+void Metronome::setBufferSize (int numSamples) { buffer.setSize (1, numSamples); }
 
 juce::AudioBuffer<float>& Metronome::getBuffer()
 {
@@ -53,10 +48,12 @@ juce::AudioBuffer<float>& Metronome::getBuffer()
     return buffer;
 }
 
-void Metronome::setBufferSize (int numSamples)
-{
-    buffer.setSize (1, numSamples);
-}
+//==============================================================================
+
+void Metronome::setTempo       (float newTempo)       { tempo = newTempo; }
+void Metronome::setSubdivision (float newSubdivision) { notesPerWholeNote = newSubdivision; }
+
+//==============================================================================
 
 bool Metronome::shouldPlayTick()
 {
@@ -72,6 +69,8 @@ bool Metronome::shouldPlayTick()
     return false;
 }
 
+//==============================================================================
+
 float Metronome::getWholeNotePerSecond()
 {
     float scaledSubdivision = subdivisionOfTempo * 60.f;
@@ -85,3 +84,5 @@ float Metronome::getNoteDurationInMillis()
     
     return subdivisionInSeconds * 1000.f;
 }
+
+//==============================================================================

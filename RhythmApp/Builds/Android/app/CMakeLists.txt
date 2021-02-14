@@ -36,6 +36,8 @@ add_library( ${BINARY_NAME}
 
     "../../../Source/Metronome.cpp"
     "../../../Source/Metronome.h"
+    "../../../Source/MasterMetronome.cpp"
+    "../../../Source/MasterMetronome.h"
     "../../../Source/Main.cpp"
     "../../../Source/MainComponent.h"
     "../../../Source/MainComponent.cpp"
@@ -1594,6 +1596,7 @@ add_library( ${BINARY_NAME}
 )
 
 set_source_files_properties("../../../Source/Metronome.h" PROPERTIES HEADER_FILE_ONLY TRUE)
+set_source_files_properties("../../../Source/MasterMetronome.h" PROPERTIES HEADER_FILE_ONLY TRUE)
 set_source_files_properties("../../../Source/MainComponent.h" PROPERTIES HEADER_FILE_ONLY TRUE)
 set_source_files_properties("../../../../../../../../Applications/JUCE/modules/juce_audio_basics/audio_play_head/juce_AudioPlayHead.h" PROPERTIES HEADER_FILE_ONLY TRUE)
 set_source_files_properties("../../../../../../../../Applications/JUCE/modules/juce_audio_basics/buffers/juce_AudioChannelSet.cpp" PROPERTIES HEADER_FILE_ONLY TRUE)

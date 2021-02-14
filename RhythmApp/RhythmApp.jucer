@@ -7,6 +7,10 @@
       <GROUP id="{B8279F89-6A75-20A6-0421-895E710DF3E7}" name="Metronome">
         <FILE id="yfcjcm" name="Metronome.cpp" compile="1" resource="0" file="Source/Metronome.cpp"/>
         <FILE id="dRwO93" name="Metronome.h" compile="0" resource="0" file="Source/Metronome.h"/>
+        <FILE id="wFMjQa" name="MasterMetronome.cpp" compile="1" resource="0"
+              file="Source/MasterMetronome.cpp"/>
+        <FILE id="OkAx0v" name="MasterMetronome.h" compile="0" resource="0"
+              file="Source/MasterMetronome.h"/>
       </GROUP>
       <FILE id="WsP6We" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
       <FILE id="yi3jUT" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>

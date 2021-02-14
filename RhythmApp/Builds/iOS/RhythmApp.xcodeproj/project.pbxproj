@@ -77,6 +77,10 @@
 			isa = PBXBuildFile;
 			fileRef = 2EBFFA297D723EA2144BC2C9;
 		};
+		91E8E5758E1F2164E1CCD655 = {
+			isa = PBXBuildFile;
+			fileRef = 615C54E87DF2E77B2514240C;
+		};
 		F38B2782C4FA4B14922A808D = {
 			isa = PBXBuildFile;
 			fileRef = AA0669DD41D732FC568C5503;
@@ -168,6 +172,13 @@
 			name = "juce_events";
 			path = "/Applications/JUCE/modules/juce_events";
 			sourceTree = "<absolute>";
+		};
+		0F53D0D7571709ED9EFEA998 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = MasterMetronome.h;
+			path = ../../Source/MasterMetronome.h;
+			sourceTree = "SOURCE_ROOT";
 		};
 		10E01F98E5E5B7DA1E4F920C = {
 			isa = PBXFileReference;
@@ -322,6 +333,13 @@
 			name = Accelerate.framework;
 			path = System/Library/Frameworks/Accelerate.framework;
 			sourceTree = SDKROOT;
+		};
+		615C54E87DF2E77B2514240C = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
+			name = MasterMetronome.cpp;
+			path = ../../Source/MasterMetronome.cpp;
+			sourceTree = "SOURCE_ROOT";
 		};
 		63FDC24D78A56730DE9644B0 = {
 			isa = PBXFileReference;
@@ -510,6 +528,8 @@
 			children = (
 				2EBFFA297D723EA2144BC2C9,
 				05AB43687FFA11D067504E1E,
+				615C54E87DF2E77B2514240C,
+				0F53D0D7571709ED9EFEA998,
 			);
 			name = Metronome;
 			sourceTree = "<group>";
@@ -898,6 +918,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				45552387FD40678F3E2304C1,
+				91E8E5758E1F2164E1CCD655,
 				F38B2782C4FA4B14922A808D,
 				2B2E7B13C1974DCA019B91B2,
 				7F3EA32AB6282E45F9F2C67D,

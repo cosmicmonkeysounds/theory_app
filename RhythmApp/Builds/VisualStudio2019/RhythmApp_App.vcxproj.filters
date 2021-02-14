@@ -475,6 +475,9 @@
     <ClCompile Include="..\..\Source\Metronome.cpp">
       <Filter>RhythmApp\Source\Metronome</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\MasterMetronome.cpp">
+      <Filter>RhythmApp\Source\Metronome</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Main.cpp">
       <Filter>RhythmApp\Source</Filter>
     </ClCompile>
@@ -2686,6 +2689,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Source\Metronome.h">
+      <Filter>RhythmApp\Source\Metronome</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\MasterMetronome.h">
       <Filter>RhythmApp\Source\Metronome</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\MainComponent.h">

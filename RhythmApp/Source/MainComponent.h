@@ -1,7 +1,7 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "Metronome.h"
+#include "MasterMetronome.h"
 
 //==============================================================================
 /*
@@ -27,7 +27,7 @@ public:
 private:
 
     juce::Random random;
-    Metronome metronome;
+    MasterMetronome metronome;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };
