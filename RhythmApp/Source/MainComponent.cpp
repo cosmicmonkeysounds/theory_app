@@ -37,6 +37,8 @@ void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRat
     // but be careful - it will be called on the audio thread, not the GUI thread.
 
     // For more details, see the help for AudioProcessor::prepareToPlay()
+    
+    metronome.setBufferSize(samplesPerBlockExpected);
 }
 
 void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill)
@@ -47,9 +49,28 @@ void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& buffe
 
     // Right now we are not producing any data, in which case we need to clear the buffer
     // (to prevent the output of random noise)
-    bufferToFill.clearActiveBufferRegion();
     
-}
+    //bufferToFill.clearActiveBufferRegion();
+    
+    juce::AudioBuffer<float>& buffer         = *bufferToFill.buffer;
+    juce::AudioBuffer<float> metronomeBuffer = metronome.getBuffer();
+    
+    int numChannels = buffer.getNumChannels();
+    int numSamples  = buffer.getNumSamples();
+
+    for (int channel = 0; channel < numChannels; ++channel)
+    {
+        float* channelData = buffer.getWritePointer (channel);
+
+        for (int sampleIndex = 0; sampleIndex < numSamples; ++sampleIndex)
+        {
+            float& sample = channelData[sampleIndex];
+            sample += metronomeBuffer.getSample (0, sampleIndex);
+        } // end of sample loop
+
+    } // end of channel loop
+    
+} // end of processing
 
 void MainComponent::releaseResources()
 {
@@ -64,9 +85,7 @@ void MainComponent::paint (juce::Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll( juce::Colours::black );
-    g.setColour( juce::Colours::white );
-    g.setFont( 20.f );
-    g.drawText( "If you can read this Liam, I am not a total fuck up", getLocalBounds(), juce::Justification::centred );
+
     // You can add your drawing code here!
 }
 

@@ -2,6 +2,9 @@
 
 <Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="RhythmApp\Source\Metronome">
+      <UniqueIdentifier>{B96D0C3A-FDD6-EB27-0595-A15F7A7EFAA4}</UniqueIdentifier>
+    </Filter>
     <Filter Include="RhythmApp\Source">
       <UniqueIdentifier>{B1C2B0A9-6194-0146-EA39-BDCD3A5F26A0}</UniqueIdentifier>
     </Filter>
@@ -469,6 +472,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\Metronome.cpp">
+      <Filter>RhythmApp\Source\Metronome</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Main.cpp">
       <Filter>RhythmApp\Source</Filter>
     </ClCompile>
@@ -2679,6 +2685,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\Metronome.h">
+      <Filter>RhythmApp\Source\Metronome</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\MainComponent.h">
       <Filter>RhythmApp\Source</Filter>
     </ClInclude>
