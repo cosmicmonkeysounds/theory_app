@@ -1,6 +1,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "Metronome.h"
 
 //==============================================================================
 /*
@@ -24,9 +25,9 @@ public:
     void resized() override;
 
 private:
-    //==============================================================================
-    // Your private member variables go here...
 
+    juce::Random random;
+    Metronome metronome;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

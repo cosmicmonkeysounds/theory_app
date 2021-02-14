@@ -4,6 +4,10 @@
               addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1">
   <MAINGROUP id="AWmmt8" name="RhythmApp">
     <GROUP id="{1C27C599-C0C2-0A75-2639-EA2FBD924093}" name="Source">
+      <GROUP id="{B8279F89-6A75-20A6-0421-895E710DF3E7}" name="Metronome">
+        <FILE id="yfcjcm" name="Metronome.cpp" compile="1" resource="0" file="Source/Metronome.cpp"/>
+        <FILE id="dRwO93" name="Metronome.h" compile="0" resource="0" file="Source/Metronome.h"/>
+      </GROUP>
       <FILE id="WsP6We" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
       <FILE id="yi3jUT" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
       <FILE id="lKTuFU" name="MainComponent.cpp" compile="1" resource="0"
