@@ -13,19 +13,22 @@
 
 //==============================================================================
 
-Metronome::Metronome()
-{
-    
-}
-
-Metronome::~Metronome()
-{
-    
-}
+//Metronome::Metronome()
+//{
+//    
+//}
+//
+//Metronome::~Metronome()
+//{
+//    
+//}
 
 //==============================================================================
 
-void Metronome::setBufferSize (int numSamples) { buffer.setSize (1, numSamples); }
+void Metronome::setBufferSize (int numSamples)
+{
+    buffer.setSize (1, numSamples);
+}
 
 juce::AudioBuffer<float>& Metronome::getBuffer()
 {
@@ -58,7 +61,7 @@ void Metronome::setSubdivision (float newSubdivision) { notesPerWholeNote = newS
 bool Metronome::shouldPlayTick()
 {
     timeSinceLastTick = juce::Time::currentTimeMillis();
-    juce::int64 dt = timeSinceLastTick - timeOfLastTick;
+    juce::int64 dt    = timeSinceLastTick - timeOfLastTick;
     
     if (dt > getNoteDurationInMillis())
     {
@@ -79,7 +82,7 @@ float Metronome::getWholeNotePerSecond()
 
 float Metronome::getNoteDurationInMillis()
 {
-    float subdivisionInHertz = getWholeNotePerSecond() * notesPerWholeNote;
+    float subdivisionInHertz   = getWholeNotePerSecond() * notesPerWholeNote;
     float subdivisionInSeconds = 1.f / subdivisionInHertz;
     
     return subdivisionInSeconds * 1000.f;

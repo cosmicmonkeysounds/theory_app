@@ -9,20 +9,23 @@
 */
 
 #pragma once
-
 #include <JuceHeader.h>
 
-//==============================================================================
-/*
-*/
 class Metronome
 {
 public:
     //==============================================================================
 
-    Metronome();
-    ~Metronome();
-
+    Metronome() {}
+    ~Metronome()                            = default;
+    
+    Metronome (const Metronome&)            = default;
+    Metronome& operator= (const Metronome&) = default;
+    
+    Metronome (Metronome&&)                 = default;
+    Metronome& operator= (Metronome&&)      = default;
+    
+    
     //==============================================================================
     
     void setBufferSize (int);
@@ -60,5 +63,4 @@ private:
 
     //==============================================================================
     
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Metronome)
 };

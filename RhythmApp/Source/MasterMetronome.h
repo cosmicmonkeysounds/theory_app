@@ -27,13 +27,29 @@ public:
     //==============================================================================
     
     void setBufferSize (int);
+    bool shouldClearBuffer();
     juce::AudioBuffer<float>& getBuffer();
 
     //==============================================================================
 
 private:
 
-    std::vector<std::unique_ptr<Metronome>> metronomes;
+//    using MetronomeVector = std::vector<std::unique_ptr<Metronome>>;
+//    MetronomeVector metronomes;
+    
+    std::vector<Metronome> metronomes;
+    
+    //==============================================================================
+    
+    float masterTempo {60.f};
+    
+    //==============================================================================
+    
+    juce::int64 timeOfLastTick    {juce::Time::currentTimeMillis()};
+    juce::int64 timeSinceLastTick {juce::Time::currentTimeMillis()};
+    
+    //==============================================================================
+    
     juce::AudioBuffer<float> buffer;
     
     //==============================================================================

@@ -52,8 +52,8 @@ void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& buffe
     
     //bufferToFill.clearActiveBufferRegion();
     
-    juce::AudioBuffer<float>& buffer         = *bufferToFill.buffer;
-    juce::AudioBuffer<float> metronomeBuffer = metronome.getBuffer();
+    juce::AudioBuffer<float>& buffer          = *bufferToFill.buffer;
+    juce::AudioBuffer<float>& metronomeBuffer = metronome.getBuffer();
     
     int numChannels = buffer.getNumChannels();
     int numSamples  = buffer.getNumSamples();

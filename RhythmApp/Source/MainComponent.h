@@ -26,7 +26,6 @@ public:
 
 private:
 
-    juce::Random random;
     MasterMetronome metronome;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
