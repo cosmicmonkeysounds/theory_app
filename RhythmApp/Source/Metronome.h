@@ -9,39 +9,58 @@
 */
 
 #pragma once
-
 #include <JuceHeader.h>
 
-//==============================================================================
-/*
-*/
-class Metronome  : public juce::Component
+class Metronome
 {
 public:
-    Metronome();
-    ~Metronome() override;
+    //==============================================================================
 
-    void paint (juce::Graphics&) override;
-    void resized() override;
+    Metronome();
+    ~Metronome()                            = default;
     
-    juce::AudioBuffer<float>& getBuffer();
+    Metronome (const Metronome&)            = default;
+    Metronome& operator= (const Metronome&) = default;
+    
+    Metronome (Metronome&&)                 = default;
+    Metronome& operator= (Metronome&&)      = default;
+    
+    
+    //==============================================================================
+    
     void setBufferSize (int);
+    juce::AudioBuffer<float>& getBuffer();
+
+    //==============================================================================
+    
+    void setTempo       (float);
+    void setSubdivision (float);
+    float getSubdivision();
+
+    //==============================================================================
 
 private:
     
-    float tempo              {60.f};
-    float subdivisionOfTempo {4.f};
-    float notesPerWholeNote  {8.f};
+    float tempo                   {120.f};
+    float subdivisionOfTempo      {4.f};
+    float subdivisionOfWholeNote  {4.f};
+
+    //==============================================================================
     
     juce::int64 timeOfLastTick    {juce::Time::currentTimeMillis()};
     juce::int64 timeSinceLastTick {juce::Time::currentTimeMillis()};
+
+    //==============================================================================
     
     juce::AudioBuffer<float> buffer;
     juce::Random random;
+
+    //==============================================================================
     
     bool shouldPlayTick();
     float getWholeNotePerSecond();
     float getNoteDurationInMillis();
+
+    //==============================================================================
     
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Metronome)
 };

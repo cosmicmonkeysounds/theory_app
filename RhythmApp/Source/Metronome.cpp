@@ -12,24 +12,17 @@
 #include "Metronome.h"
 
 //==============================================================================
+
 Metronome::Metronome()
-{
-    buffer.clear();
-
-}
-
-Metronome::~Metronome()
-{
-}
-
-void Metronome::paint (juce::Graphics& g)
 {
     
 }
 
-void Metronome::resized()
-{
+//==============================================================================
 
+void Metronome::setBufferSize (int numSamples)
+{
+    buffer.setSize (1, numSamples);
 }
 
 juce::AudioBuffer<float>& Metronome::getBuffer()
@@ -53,15 +46,19 @@ juce::AudioBuffer<float>& Metronome::getBuffer()
     return buffer;
 }
 
-void Metronome::setBufferSize (int numSamples)
-{
-    buffer.setSize (1, numSamples);
-}
+//==============================================================================
+
+void Metronome::setTempo       (float newTempo)       { tempo = newTempo; }
+void Metronome::setSubdivision (float newSubdivision) { subdivisionOfWholeNote = newSubdivision; }
+
+float Metronome::getSubdivision() { return subdivisionOfWholeNote; }
+
+//==============================================================================
 
 bool Metronome::shouldPlayTick()
 {
     timeSinceLastTick = juce::Time::currentTimeMillis();
-    juce::int64 dt = timeSinceLastTick - timeOfLastTick;
+    juce::int64 dt    = timeSinceLastTick - timeOfLastTick;
     
     if (dt > getNoteDurationInMillis())
     {
@@ -72,6 +69,8 @@ bool Metronome::shouldPlayTick()
     return false;
 }
 
+//==============================================================================
+
 float Metronome::getWholeNotePerSecond()
 {
     float scaledSubdivision = subdivisionOfTempo * 60.f;
@@ -80,8 +79,10 @@ float Metronome::getWholeNotePerSecond()
 
 float Metronome::getNoteDurationInMillis()
 {
-    float subdivisionInHertz = getWholeNotePerSecond() * notesPerWholeNote;
+    float subdivisionInHertz   = getWholeNotePerSecond() * subdivisionOfWholeNote;
     float subdivisionInSeconds = 1.f / subdivisionInHertz;
     
     return subdivisionInSeconds * 1000.f;
 }
+
+//==============================================================================
