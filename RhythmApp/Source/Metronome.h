@@ -16,7 +16,7 @@ class Metronome
 public:
     //==============================================================================
 
-    Metronome() {}
+    Metronome();
     ~Metronome()                            = default;
     
     Metronome (const Metronome&)            = default;
@@ -33,17 +33,17 @@ public:
 
     //==============================================================================
     
-    void setTempo(float);
-    void setSubdivision(float);
-    void setNotesPerWholeNote(float);
+    void setTempo       (float);
+    void setSubdivision (float);
+    float getSubdivision();
 
     //==============================================================================
 
 private:
     
-    float tempo              {60.f};
-    float subdivisionOfTempo {4.f};
-    float notesPerWholeNote  {8.f};
+    float tempo                   {120.f};
+    float subdivisionOfTempo      {4.f};
+    float subdivisionOfWholeNote  {4.f};
 
     //==============================================================================
     

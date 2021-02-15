@@ -60,7 +60,7 @@ void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& buffe
     
     for (int channel = 0; channel < numChannels; ++channel)
     {
-        buffer.addFrom (channel, 0, metronomeBuffer, channel, 0, numSamples);
+        buffer.addFrom (channel, 0, metronomeBuffer, 0, 0, numSamples);
     }
 
 } // end of processing
@@ -86,9 +86,7 @@ void MainComponent::paint (juce::Graphics& g)
 
 void MainComponent::resized()
 {
-    // This is called when the MainContentComponent is resized.
-    // If you add any child components, this is where you should
-    // update their positions.
+    
 }
 
 //==============================================================================

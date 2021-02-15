@@ -11,6 +11,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include <map>
 #include "Metronome.h"
 
 class MasterMetronome  : public juce::Component
@@ -33,20 +34,13 @@ public:
     //==============================================================================
 
 private:
-
-//    using MetronomeVector = std::vector<std::unique_ptr<Metronome>>;
-//    MetronomeVector metronomes;
     
-    std::vector<Metronome> metronomes;
+    using MetronomeMap = std::map<float, Metronome>;
+    MetronomeMap metronomes;
     
     //==============================================================================
     
-    float masterTempo {60.f};
-    
-    //==============================================================================
-    
-    juce::int64 timeOfLastTick    {juce::Time::currentTimeMillis()};
-    juce::int64 timeSinceLastTick {juce::Time::currentTimeMillis()};
+    float masterTempo {120.f};
     
     //==============================================================================
     

@@ -15,12 +15,9 @@
 
 MasterMetronome::MasterMetronome()
 {
-    //std::unique_ptr<Metronome> m = std::make_unique<Metronome> (new Metronome);
-    //metronomes.emplace_back (std::make_unique<Metronome> (new Metronome));
-    
-    //Metronome m;
-    //metronomes.push_back (m);
-    metronomes.emplace_back (Metronome());
+    Metronome m;
+    //std::pair<float, Metronome*> mp (m.getSubdivision(), &m);
+    metronomes[m.getSubdivision()] = m;
 }
 
 MasterMetronome::~MasterMetronome()
@@ -44,58 +41,33 @@ void MasterMetronome::resized()
 void MasterMetronome::setBufferSize (int newBufferSize)
 {
     buffer.setSize (2, newBufferSize);
-    
-    for (auto& m : metronomes)
-        m.setBufferSize (newBufferSize);
-    
-}
 
-bool MasterMetronome::shouldClearBuffer()
-{
-    float scaledSubdivision         = 4.f * 60.f;
-    float subdivisionInHertz        = masterTempo / scaledSubdivision;
-    float subdivisionInSeconds      = 1.f / subdivisionInHertz;
-    juce::int64 subdivisionInMillis = subdivisionInSeconds * 1000.f;
-    
-    timeSinceLastTick = juce::Time::currentTimeMillis();
-    juce::int64 dt    = timeSinceLastTick - timeOfLastTick;
-    
-    if (dt > subdivisionInMillis)
+    for (auto kvPair = metronomes.begin(); kvPair != metronomes.end(); ++kvPair)
     {
-        timeOfLastTick = timeSinceLastTick;
-        return true;
+        auto& m = kvPair->second;
+        m.setBufferSize (newBufferSize);
     }
-    
-    return false;
+        
 }
 
 juce::AudioBuffer<float>& MasterMetronome::getBuffer()
 {
-    if (shouldClearBuffer())
-        buffer.clear();
+    buffer.clear();
+
+    int numChannels = buffer.getNumChannels();
+    int numSamples  = buffer.getNumSamples();
     
-    else
+    for (auto kvPair = metronomes.begin(); kvPair != metronomes.end(); ++kvPair)
     {
-        
-        int numChannels = buffer.getNumChannels();
-        int numSamples  = buffer.getNumSamples();
+        auto& m       = kvPair->second;
+        auto& mBuffer = m.getBuffer();
 
         for (int channel = 0; channel < numChannels; ++channel)
         {
-            float* channelData = buffer.getWritePointer (channel);
-            for (int sampleIndex = 0; sampleIndex < numSamples; ++sampleIndex)
-            {
-                float& sample = channelData[sampleIndex];
-                for (auto& m : metronomes)
-                {
-                    juce::AudioBuffer<float>& mBuffer = m.getBuffer();
-                    sample += mBuffer.getSample (0, sampleIndex);
-                }
-            } // end of sample loop
-        } // end of channel loop
+            buffer.addFrom (channel, 0, mBuffer, 0, 0, numSamples);
+        }
+    }
         
-    } // end of else
-    
     return buffer;
 }
 
