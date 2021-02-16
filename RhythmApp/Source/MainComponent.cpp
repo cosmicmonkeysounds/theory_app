@@ -20,6 +20,8 @@ MainComponent::MainComponent()
         // Specify the number of input and output channels that we want to open
         setAudioChannels (2, 2);
     }
+    
+    addAndMakeVisible (metronome);
 }
 
 //==============================================================================
@@ -86,7 +88,9 @@ void MainComponent::paint (juce::Graphics& g)
 
 void MainComponent::resized()
 {
+    auto r = getLocalBounds();
     
+    metronome.setBounds (r.withSizeKeepingCentre (r.getWidth()/3, r.getHeight()/4));
 }
 
 //==============================================================================

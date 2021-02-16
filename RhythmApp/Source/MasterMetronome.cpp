@@ -15,9 +15,34 @@
 
 MasterMetronome::MasterMetronome()
 {
-    Metronome m;
-    //std::pair<float, Metronome*> mp (m.getSubdivision(), &m);
-    metronomes[m.getSubdivision()] = m;
+    addNewMetronome (4.f);
+    
+    addAndMakeVisible (tempoLabel);
+    tempoLabel.setJustificationType (juce::Justification::centred);
+    tempoLabel.setText (juce::String (masterTempo), juce::NotificationType::dontSendNotification);
+    tempoLabel.setEditable (true);
+    tempoLabel.onTextChange = [this] { setTempo ((float)tempoLabel.getTextValue().getValue()); };
+    
+    addAndMakeVisible (incTempoBtn);
+    incTempoBtn.setClickingTogglesState (false);
+    incTempoBtn.setButtonText ("+");
+    
+    addAndMakeVisible (decTempoBtn);
+    decTempoBtn.setClickingTogglesState (false);
+    decTempoBtn.setButtonText ("-");
+    
+    incTempoBtn.onClick = [this]
+    {
+        setTempo (masterTempo += 1.f);
+        tempoLabel.setText (juce::String (masterTempo), juce::NotificationType::dontSendNotification);
+    };
+    
+    decTempoBtn.onClick = [this]
+    {
+        setTempo (masterTempo -= 1.f);
+        tempoLabel.setText (juce::String (masterTempo), juce::NotificationType::dontSendNotification);
+    };
+    
 }
 
 MasterMetronome::~MasterMetronome()
@@ -28,12 +53,17 @@ MasterMetronome::~MasterMetronome()
 
 void MasterMetronome::paint (juce::Graphics& g)
 {
-    
+    g.fillAll (juce::Colours::darkblue);
 }
 
 void MasterMetronome::resized()
 {
-
+    auto r = getLocalBounds();
+    auto width = r.getWidth();
+    
+    decTempoBtn.setBounds (r.removeFromLeft (width*0.3));
+    tempoLabel.setBounds  (r.removeFromLeft (width*0.4));
+    incTempoBtn.setBounds (r);
 }
 
 //==============================================================================
@@ -69,6 +99,32 @@ juce::AudioBuffer<float>& MasterMetronome::getBuffer()
     }
         
     return buffer;
+}
+
+//==============================================================================
+
+void MasterMetronome::setTempo (float newTempo)
+{
+    masterTempo = newTempo;
+    
+    for (auto kvPair = metronomes.begin(); kvPair != metronomes.end(); ++kvPair)
+    {
+        auto& m = kvPair->second;
+        m.setTempo (masterTempo);
+    }
+}
+
+//==============================================================================
+
+void MasterMetronome::addNewMetronome (Metronome& newMetronome)
+{
+    metronomes[newMetronome.getSubdivision()] = newMetronome;
+}
+
+void MasterMetronome::addNewMetronome (float subdivision)
+{
+    Metronome m {subdivision};
+    addNewMetronome (m);
 }
 
 //==============================================================================

@@ -18,6 +18,12 @@ Metronome::Metronome()
     
 }
 
+Metronome::Metronome (float subdivision)
+: subdivisionOfWholeNote (subdivision)
+{
+    Metronome();
+}
+
 //==============================================================================
 
 void Metronome::setBufferSize (int numSamples)

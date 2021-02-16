@@ -17,6 +17,8 @@ public:
     //==============================================================================
 
     Metronome();
+    Metronome (float);
+    
     ~Metronome()                            = default;
     
     Metronome (const Metronome&)            = default;
@@ -24,7 +26,6 @@ public:
     
     Metronome (Metronome&&)                 = default;
     Metronome& operator= (Metronome&&)      = default;
-    
     
     //==============================================================================
     
