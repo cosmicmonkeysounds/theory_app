@@ -14,10 +14,14 @@
 class Metronome
 {
 public:
+    
     //==============================================================================
 
-    Metronome();
-    Metronome (float);
+    Metronome () {}
+    Metronome (float s) : subdivision (s)
+    {
+        Metronome();
+    }
     
     ~Metronome()                            = default;
     
@@ -29,22 +33,46 @@ public:
     
     //==============================================================================
     
-    void setBufferSize (int);
-    juce::AudioBuffer<float>& getBuffer();
+    void setBufferSize (int newNumSamples)
+    {
+        buffer.setSize (1, newNumSamples);
+        
+    }
+    
+    juce::AudioBuffer<float>& getBuffer()
+    {
+        // just playing white noise, for now
+        if (shouldPlayTick())
+        {
+            float* channelData = buffer.getWritePointer(0);
+            for (int sampleIndex = 0; sampleIndex < buffer.getNumSamples(); ++sampleIndex )
+            {
+                float& sample = channelData[sampleIndex];
+                sample = random.nextFloat();
+            }
+        }
+        
+        else
+        {
+            buffer.clear();
+        }
+        
+        return buffer;
+    }
 
     //==============================================================================
     
-    void setTempo       (float);
-    void setSubdivision (float);
-    float getSubdivision();
+    void setTempo        (float t) { tempo = t; }
+    
+    void  setSubdivision (float s) { subdivision = s; }
+    float getSubdivision ()        { return subdivision; }
 
     //==============================================================================
 
 private:
     
-    float tempo                   {120.f};
-    float subdivisionOfTempo      {4.f};
-    float subdivisionOfWholeNote  {4.f};
+    float tempo       {120.f};
+    float subdivision {4.f};
 
     //==============================================================================
     
@@ -58,9 +86,30 @@ private:
 
     //==============================================================================
     
-    bool shouldPlayTick();
-    float getWholeNotePerSecond();
-    float getNoteDurationInMillis();
+    bool shouldPlayTick()
+    {
+        timeSinceLastTick = juce::Time::currentTimeMillis();
+        juce::int64 dt    = timeSinceLastTick - timeOfLastTick;
+        
+        if (dt > getSubdivisionInMillis())
+        {
+            timeOfLastTick = timeSinceLastTick;
+            return true;
+        }
+        
+        return false;
+    }
+    
+    // 240 = 4 * 60: four quarters @ 60bpm = 1 whole note per second
+    float getWholeNotePerSecond() { return tempo / 240.f; }
+    
+    float getSubdivisionInMillis()
+    {
+        float subdivisionInHertz   = getWholeNotePerSecond() * subdivision;
+        float subdivisionInSeconds = 1.f / subdivisionInHertz;
+        
+        return subdivisionInSeconds * 1000.f;
+    }
 
     //==============================================================================
     
