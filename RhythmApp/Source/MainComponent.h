@@ -29,7 +29,9 @@ public:
     void resized() override;
 
 private:
-
+    
+    juce::ValueTree parameters {juce::Identifier {"Parameters"}};
+    
     MetronomeWidget metronome;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)

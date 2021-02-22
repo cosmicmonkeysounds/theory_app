@@ -15,50 +15,69 @@
 #include <map>
 
 #include "Metronome.h"
-#include "MetronomeIncrementButton.h"
-#include "MetronomeTempoLabel.h"
+#include "MetronomeButton.h"
+#include "PlayButton.h"
+#include "MetronomeLabel.h"
 
-class MetronomeWidget  : public juce::Component
+class MetronomeWidget  : public juce::Component, juce::Value::Listener
 {
 public:
-    MetronomeWidget()
+    
+    //==============================================================================
+    
+    MetronomeWidget (juce::ValueTree& p) : parameters (p)
     {
+        masterTempo.setValue         (120.f);
+        masterTempo.addListener      (this);
+        metronomePlaying.addListener (this);
+        
         addNewMetronome (4.f);
-        
-        addAndMakeVisible (tempoLabel);
-        tempoLabel.setJustificationType (juce::Justification::centred);
-        tempoLabel.setText (juce::String (masterTempo), juce::NotificationType::dontSendNotification);
-        tempoLabel.setEditable (true);
-        tempoLabel.onTextChange = [this] { setTempo ((float)tempoLabel.getTextValue().getValue()); };
-        
+                
         addAndMakeVisible (incTempoBtn);
         addAndMakeVisible (decTempoBtn);
-        
+        addAndMakeVisible (tempoLabel);
+        addAndMakeVisible (playButton);
     }
     
-    ~MetronomeWidget() override {}
+    ~MetronomeWidget() override
+    {
+        masterTempo.removeListener (this);
+    }
     
     //==============================================================================
 
     void paint (juce::Graphics& g) override
     {
-        float cornerSize         = 10.f;
-        juce::Rectangle<float> r = getLocalBounds().toFloat();
+        auto area        = getLocalBounds().toFloat();
+        float cornerSize = 10.f;
         
-        g.setColour (juce::Colours::darkgrey.darker());
-        g.fillRoundedRectangle (r, cornerSize);
+        g.setColour            (juce::Colours::white);
+        g.drawRoundedRectangle (area, cornerSize, 2.f);
     }
     
     void resized() override
     {
-        auto r = getLocalBounds();
-        auto width = r.getWidth();
+        auto r      = getLocalBounds().reduced(5);
+        int  width  = r.getWidth();
+        int  height = r.getHeight();
         
-        decTempoBtn .setBounds (r.removeFromLeft (width*0.3));
-        tempoLabel  .setBounds (r.removeFromLeft (width*0.4));
-        incTempoBtn .setBounds (r);
+        float buttonWidth = width * 0.3;
+        decTempoBtn.setBounds (r.removeFromLeft  (buttonWidth));
+        incTempoBtn.setBounds (r.removeFromRight (buttonWidth));
+    
+        float tempoLabelHeight = height * 0.3;
+        tempoLabel.setBounds  (r.removeFromTop (tempoLabelHeight));
+        playButton.setBounds  (r.reduced (5, 5));
     }
 
+    //==============================================================================
+    
+    void valueChanged (juce::Value& value) override
+    {
+        if (value.refersToSameSourceAs (masterTempo))      setTempo (masterTempo.getValue());
+        if (value.refersToSameSourceAs (metronomePlaying)) resetMetronomes();
+    }
+    
     //==============================================================================
     
     void setBufferSize (int newBufferSize)
@@ -80,15 +99,18 @@ public:
         int numChannels = buffer.getNumChannels();
         int numSamples  = buffer.getNumSamples();
         
-        for (auto kvPair = metronomes.begin(); kvPair != metronomes.end(); ++kvPair)
+        if (metronomePlaying.getValue())
         {
-            auto& m       = kvPair->second;
-            auto& mBuffer = m.getBuffer();
+            for (auto kvPair = metronomes.begin(); kvPair != metronomes.end(); ++kvPair)
+            {
+                auto& m       = kvPair->second;
+                auto& mBuffer = m.getBuffer();
 
-            for (int channel = 0; channel < numChannels; ++channel)
-                buffer.addFrom (channel, 0, mBuffer, 0, 0, numSamples);
+                for (int channel = 0; channel < numChannels; ++channel)
+                    buffer.addFrom (channel, 0, mBuffer, 0, 0, numSamples);
+            }
         }
-            
+        
         return buffer;
     }
 
@@ -96,12 +118,21 @@ public:
     
     void setTempo (float newTempo)
     {
-        masterTempo = newTempo;
+        parameters.setProperty ("masterTempo", newTempo, nullptr);
         
         for (auto kvPair = metronomes.begin(); kvPair != metronomes.end(); ++kvPair)
         {
             auto& m = kvPair->second;
-            m.setTempo (masterTempo);
+            m.setTempo (newTempo);
+        }
+    }
+    
+    void resetMetronomes()
+    {
+        for (auto kvPair = metronomes.begin(); kvPair != metronomes.end(); ++kvPair)
+        {
+            auto& m = kvPair->second;
+            m.resetTiming();
         }
     }
     
@@ -123,23 +154,22 @@ public:
 private:
     
     //==============================================================================
-    
-    using MetronomeMap = std::map<float, Metronome>;
-    MetronomeMap metronomes;
-    
-    //==============================================================================
-    
-    juce::Label tempoLabel;
-    
-    MetronomeIncrementButton incTempoBtn {true}, decTempoBtn {false};
-    
-    //==============================================================================
-    
-    float masterTempo {120.f};
-    
-    //==============================================================================
-    
+
+    std::map<float, Metronome> metronomes;
     juce::AudioBuffer<float> buffer;
+    
+    //==============================================================================
+    
+    juce::ValueTree& parameters;
+    juce::Value masterTempo      {parameters.getPropertyAsValue ("masterTempo", nullptr)};
+    juce::Value metronomePlaying {parameters.getPropertyAsValue ("metronomePlaying", nullptr)};
+    
+    //==============================================================================
+    
+    MetronomeLabel  tempoLabel  {masterTempo};
+    MetronomeButton incTempoBtn {masterTempo, MetronomeButton::Type::Increment};
+    MetronomeButton decTempoBtn {masterTempo, MetronomeButton::Type::Decrement};
+    PlayButton      playButton  {metronomePlaying};
     
     //==============================================================================
     

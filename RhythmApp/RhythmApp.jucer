@@ -8,10 +8,11 @@
         <FILE id="YV4CMa" name="MetronomeWidget.h" compile="0" resource="0"
               file="Source/MetronomeWidget.h"/>
         <FILE id="dRwO93" name="Metronome.h" compile="0" resource="0" file="Source/Metronome.h"/>
-        <FILE id="oGBrei" name="MetronomeIncrementButton.h" compile="0" resource="0"
-              file="Source/MetronomeIncrementButton.h"/>
-        <FILE id="fmcFJU" name="MetronomeTempoLabel.h" compile="0" resource="0"
-              file="Source/MetronomeTempoLabel.h"/>
+        <FILE id="oGBrei" name="MetronomeButton.h" compile="0" resource="0"
+              file="Source/MetronomeButton.h"/>
+        <FILE id="ycCAN3" name="PlayButton.h" compile="0" resource="0" file="Source/PlayButton.h"/>
+        <FILE id="fmcFJU" name="MetronomeLabel.h" compile="0" resource="0"
+              file="Source/MetronomeLabel.h"/>
       </GROUP>
       <FILE id="WsP6We" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
       <FILE id="yi3jUT" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>

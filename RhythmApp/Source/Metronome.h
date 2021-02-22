@@ -25,23 +25,18 @@ public:
     
     ~Metronome()                            = default;
     
-    Metronome (const Metronome&)            = default;
+    Metronome            (const Metronome&) = default;
     Metronome& operator= (const Metronome&) = default;
     
-    Metronome (Metronome&&)                 = default;
+    Metronome            (Metronome&&)      = default;
     Metronome& operator= (Metronome&&)      = default;
     
     //==============================================================================
     
-    void setBufferSize (int newNumSamples)
-    {
-        buffer.setSize (1, newNumSamples);
-        
-    }
-    
     juce::AudioBuffer<float>& getBuffer()
     {
-        // just playing white noise, for now
+        // just playing a burst white noise, for now,
+        // later this will use | someSynthOrSampler.trigger(); | interface
         if (shouldPlayTick())
         {
             float* channelData = buffer.getWritePointer(0);
@@ -62,14 +57,17 @@ public:
 
     //==============================================================================
     
-    void setTempo        (float t) { tempo = t; }
-    
-    void  setSubdivision (float s) { subdivision = s; }
-    float getSubdivision ()        { return subdivision; }
+    void  resetTiming    ()                  { timeOfLastTick = timeSinceLastTick - getSubdivisionInMillis(); }
+    void  setTempo       (float t)           { tempo = t; }
+    void  setSubdivision (float s)           { subdivision = s; }
+    float getSubdivision ()                  { return subdivision; }
+    void  setBufferSize  (int newNumSamples) { buffer.setSize (1, newNumSamples); }
 
     //==============================================================================
 
 private:
+    
+    //==============================================================================
     
     float tempo       {120.f};
     float subdivision {4.f};
@@ -100,14 +98,18 @@ private:
         return false;
     }
     
-    // 240 = 4 * 60: four quarters @ 60bpm = 1 whole note per second
-    float getWholeNotePerSecond() { return tempo / 240.f; }
+    
+    float getWholeNoteDuration()
+    {
+        // 240 = 4 * 60 = four quarters @ 60bpm,
+        // aka: duration of 1 whole note @ 1 beat per second
+        return tempo / 240.f;
+    }
     
     float getSubdivisionInMillis()
     {
-        float subdivisionInHertz   = getWholeNotePerSecond() * subdivision;
-        float subdivisionInSeconds = 1.f / subdivisionInHertz;
-        
+        float  subdivisionInHertz   = getWholeNoteDuration() * subdivision;
+        float  subdivisionInSeconds = 1.f / subdivisionInHertz;
         return subdivisionInSeconds * 1000.f;
     }
 
