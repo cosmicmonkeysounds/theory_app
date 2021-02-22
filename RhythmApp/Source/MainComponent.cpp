@@ -2,7 +2,7 @@
 
 //==============================================================================
 
-MainComponent::MainComponent()
+MainComponent::MainComponent() : metronome (parameters)
 {
     // Make sure you set the size of the component after
     // you add any child components.
@@ -20,6 +20,12 @@ MainComponent::MainComponent()
         // Specify the number of input and output channels that we want to open
         setAudioChannels (2, 2);
     }
+    
+    addAndMakeVisible (metronome);
+    
+    parameters.setProperty (juce::Identifier {"masterTempo"}, 120.f, nullptr);
+    parameters.setProperty (juce::Identifier {"metronomePlaying"}, false, nullptr);
+    
 }
 
 //==============================================================================
@@ -62,6 +68,8 @@ void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& buffe
     {
         buffer.addFrom (channel, 0, metronomeBuffer, 0, 0, numSamples);
     }
+    
+    //DBG ("MainComponent::getNextAudioBlock tempo: " << masterTempoParameter.load());
 
 } // end of processing
 
@@ -86,7 +94,9 @@ void MainComponent::paint (juce::Graphics& g)
 
 void MainComponent::resized()
 {
+    auto r = getLocalBounds();
     
+    metronome.setBounds (r.withSizeKeepingCentre (r.getWidth()/3, r.getHeight()/4));
 }
 
 //==============================================================================
