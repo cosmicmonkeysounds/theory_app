@@ -57,7 +57,7 @@ public:
 
     //==============================================================================
     
-    void  resetTiming    ()                  { timeOfLastTick = timeSinceLastTick - getSubdivisionInMillis(); }
+    void  resetTiming    ()                  { timeOfLastTick = 0; }
     void  setTempo       (float t)           { tempo = t; }
     void  setSubdivision (float s)           { subdivision = s; }
     float getSubdivision ()                  { return subdivision; }
