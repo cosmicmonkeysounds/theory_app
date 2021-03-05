@@ -18,6 +18,7 @@
 #include "MetronomeButton.h"
 #include "PlayButton.h"
 #include "MetronomeLabel.h"
+#include "MetronomeVisualiser.h"
 
 class MetronomeWidget  : public juce::Component, juce::Value::Listener
 {
@@ -32,11 +33,14 @@ public:
         metronomePlaying.addListener (this);
         
         addNewMetronome (4.f);
+        addNewMetronome (3.f);
                 
         addAndMakeVisible (incTempoBtn);
         addAndMakeVisible (decTempoBtn);
         addAndMakeVisible (tempoLabel);
         addAndMakeVisible (playButton);
+        
+        addAndMakeVisible (visualiser);
     }
     
     ~MetronomeWidget() override
@@ -60,6 +64,8 @@ public:
         auto r      = getLocalBounds().reduced(5);
         int  width  = r.getWidth();
         int  height = r.getHeight();
+        
+        visualiser.setBounds (r.removeFromBottom (height*0.2));
         
         float buttonWidth = width * 0.3;
         decTempoBtn.setBounds (r.removeFromLeft  (buttonWidth));
@@ -170,6 +176,8 @@ private:
     MetronomeButton incTempoBtn {masterTempo, MetronomeButton::Type::Increment};
     MetronomeButton decTempoBtn {masterTempo, MetronomeButton::Type::Decrement};
     PlayButton      playButton  {metronomePlaying};
+    
+    MetronomeVisualiser visualiser {3};
     
     //==============================================================================
     

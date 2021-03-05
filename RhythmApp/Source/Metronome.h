@@ -33,6 +33,20 @@ public:
     
     //==============================================================================
     
+    bool shouldPlayTick()
+    {
+        timeSinceLastTick = juce::Time::currentTimeMillis();
+        juce::int64 dt    = timeSinceLastTick - timeOfLastTick;
+        
+        if (dt > getSubdivisionInMillis())
+        {
+            timeOfLastTick = timeSinceLastTick;
+            return true;
+        }
+        
+        return false;
+    }
+    
     juce::AudioBuffer<float>& getBuffer()
     {
         // just playing a burst white noise, for now,
@@ -83,21 +97,6 @@ private:
     juce::Random random;
 
     //==============================================================================
-    
-    bool shouldPlayTick()
-    {
-        timeSinceLastTick = juce::Time::currentTimeMillis();
-        juce::int64 dt    = timeSinceLastTick - timeOfLastTick;
-        
-        if (dt > getSubdivisionInMillis())
-        {
-            timeOfLastTick = timeSinceLastTick;
-            return true;
-        }
-        
-        return false;
-    }
-    
     
     float getWholeNoteDuration()
     {
