@@ -59,17 +59,15 @@ void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& buffe
     //bufferToFill.clearActiveBufferRegion();
     
     juce::AudioBuffer<float>& buffer          = *bufferToFill.buffer;
-    juce::AudioBuffer<float>& metronomeBuffer = metronome.getBuffer();
-    
-    int numChannels = buffer.getNumChannels();
-    int numSamples  = buffer.getNumSamples();
-    
-    for (int channel = 0; channel < numChannels; ++channel)
-    {
-        buffer.addFrom (channel, 0, metronomeBuffer, 0, 0, numSamples);
-    }
-    
-    //DBG ("MainComponent::getNextAudioBlock tempo: " << masterTempoParameter.load());
+//    juce::AudioBuffer<float>& metronomeBuffer = metronome.getBuffer();
+//
+//    int numChannels = buffer.getNumChannels();
+//    int numSamples  = buffer.getNumSamples();
+//
+//    for (int channel = 0; channel < numChannels; ++channel)
+//    {
+//        buffer.addFrom (channel, 0, metronomeBuffer, 0, 0, numSamples);
+//    }
 
 } // end of processing
 

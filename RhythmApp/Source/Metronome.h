@@ -18,7 +18,7 @@ public:
     //==============================================================================
 
     Metronome () {}
-    Metronome (float s) : subdivision (s)
+    Metronome (int s) : subdivision (s)
     {
         Metronome();
     }
@@ -30,71 +30,12 @@ public:
     
     Metronome            (Metronome&&)      = default;
     Metronome& operator= (Metronome&&)      = default;
-    
-    //==============================================================================
-    
-    bool shouldPlayTick()
-    {
-        timeSinceLastTick = juce::Time::currentTimeMillis();
-        juce::int64 dt    = timeSinceLastTick - timeOfLastTick;
-        
-        if (dt > getSubdivisionInMillis())
-        {
-            timeOfLastTick = timeSinceLastTick;
-            return true;
-        }
-        
-        return false;
-    }
-    
-    juce::AudioBuffer<float>& getBuffer()
-    {
-        // just playing a burst white noise, for now,
-        // later this will use | someSynthOrSampler.trigger(); | interface
-        if (shouldPlayTick())
-        {
-            float* channelData = buffer.getWritePointer(0);
-            for (int sampleIndex = 0; sampleIndex < buffer.getNumSamples(); ++sampleIndex )
-            {
-                float& sample = channelData[sampleIndex];
-                sample = random.nextFloat();
-            }
-        }
-        
-        else
-        {
-            buffer.clear();
-        }
-        
-        return buffer;
-    }
 
     //==============================================================================
     
-    void  resetTiming    ()                  { timeOfLastTick = 0; }
-    void  setTempo       (float t)           { tempo = t; }
-    void  setSubdivision (float s)           { subdivision = s; }
-    float getSubdivision ()                  { return subdivision; }
-    void  setBufferSize  (int newNumSamples) { buffer.setSize (1, newNumSamples); }
-
-    //==============================================================================
-
-private:
-    
-    //==============================================================================
-    
-    float tempo       {120.f};
-    float subdivision {4.f};
-
-    //==============================================================================
-    
-    juce::int64 timeOfLastTick    {juce::Time::currentTimeMillis()};
-    juce::int64 timeSinceLastTick {juce::Time::currentTimeMillis()};
-
-    //==============================================================================
-    
-    juce::AudioBuffer<float> buffer;
-    juce::Random random;
+    int  getSubdivision ()        { return subdivision; }
+    void setSubdivision (float s) { subdivision = s; }
+    void setTempo       (float t) { tempo = t; }
 
     //==============================================================================
     
@@ -107,11 +48,31 @@ private:
     
     float getSubdivisionInMillis()
     {
-        float  subdivisionInHertz   = getWholeNoteDuration() * subdivision;
+        float  subdivisionInHertz   = getWholeNoteDuration() * (float)subdivision;
         float  subdivisionInSeconds = 1.f / subdivisionInHertz;
         return subdivisionInSeconds * 1000.f;
     }
-
+    
+    //==============================================================================
+    
+    void trigger()
+    {
+        DBG ("\nblip");
+    }
+    
+    //==============================================================================
+    
+    juce::int64 timeOfLastTick  {juce::Time::currentTimeMillis()};
+    
+    //==============================================================================
+    
+private:
+    
+    //==============================================================================
+    
+    int   subdivision  {4};
+    float tempo        {120.f};
+    
     //==============================================================================
     
 };
