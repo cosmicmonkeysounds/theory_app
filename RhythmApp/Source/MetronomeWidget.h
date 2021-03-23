@@ -20,7 +20,9 @@
 #include "MetronomeLabel.h"
 #include "MetronomeVisualiser.h"
 
-class MetronomeWidget  : public juce::Component, juce::Value::Listener, juce::Thread
+class MetronomeWidget  : public juce::Component,
+                         public juce::Value::Listener,
+                         public juce::Thread
 {
 public:
     
@@ -28,11 +30,10 @@ public:
     
     MetronomeWidget (juce::ValueTree& p) : Thread ("Metronome Thread"), parameters (p)
     {
-        masterTempo.setValue         (120.f);
         masterTempo.addListener      (this);
         metronomePlaying.addListener (this);
         
-        addNewMetronome (4);
+        masterTempo.setValue (120.f);
                 
         addAndMakeVisible (incTempoBtn);
         addAndMakeVisible (decTempoBtn);
@@ -42,8 +43,9 @@ public:
         addAndMakeVisible (visualiser);
         
         setPriority (realtimeAudioPriority);
-        DBG ("Widget made");
         startThread ();
+        
+        audioBuffer.clear();
     }
     
     ~MetronomeWidget() override
@@ -115,7 +117,18 @@ public:
     
     //==============================================================================
     
-    void setBufferSize (int newBufferSize) { buffer.setSize (2, newBufferSize); }
+    void setBufferSettings (int newBufferSize, double sampleRate)
+    {
+        audioBuffer.setSize (2, newBufferSize);
+        
+        for (auto kvPair = metronomes.begin(); kvPair != metronomes.end(); ++kvPair)
+        {
+            auto& m = kvPair->second;
+            m.sampler.setCurrentPlaybackSampleRate (sampleRate);
+            m.loadSample (true);
+        }
+        
+    }
 
     //==============================================================================
     
@@ -140,33 +153,42 @@ public:
     }
     
     //==============================================================================
-    
-    void addNewMetronome (Metronome& newMetronome)
-    {
-        metronomes[newMetronome.getSubdivision()] = newMetronome;
-    }
-    
+        
     void addNewMetronome (int subdivision)
     {
-        Metronome m {subdivision};
-        addNewMetronome (m);
+        Metronome m  {subdivision, masterTempo.getValue()};
+        metronomes[subdivision] = m;
     }
     
     //==============================================================================
+    
+    juce::AudioBuffer<float>& getBuffer()
+    {
+        //DBG ("hello");
+        for (auto kvPair = metronomes.begin(); kvPair != metronomes.end(); ++kvPair)
+        {
+            auto& m = kvPair->second;
+            m.sampler.renderNextBlock (audioBuffer, midiBuffer, 0, audioBuffer.getNumSamples());
+        }
+        
+        return audioBuffer;
+    }
     
 private:
     
     //==============================================================================
 
     std::map<float, Metronome> metronomes;
-    juce::AudioBuffer<float> buffer;
+    
+    juce::AudioBuffer<float> audioBuffer;
+    juce::MidiBuffer midiBuffer;
     
     juce::int64 currentTime = juce::Time::currentTimeMillis();
     
     //==============================================================================
     
     juce::ValueTree& parameters;
-    juce::Value      masterTempo      {parameters.getPropertyAsValue ("masterTempo", nullptr)};
+    juce::Value      masterTempo      {parameters.getPropertyAsValue ("masterTempo",      nullptr)};
     juce::Value      metronomePlaying {parameters.getPropertyAsValue ("metronomePlaying", nullptr)};
     
     //==============================================================================

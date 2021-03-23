@@ -6,7 +6,7 @@ MainComponent::MainComponent() : metronome (parameters)
 {
     // Make sure you set the size of the component after
     // you add any child components.
-    setSize( getParentWidth(), getParentHeight() );
+    setSize (getParentWidth(), getParentHeight());
 
     // Some platforms require permissions to open input channels so request that here
     if (juce::RuntimePermissions::isRequired (juce::RuntimePermissions::recordAudio)
@@ -21,6 +21,7 @@ MainComponent::MainComponent() : metronome (parameters)
         setAudioChannels (2, 2);
     }
     
+    metronome.addNewMetronome (4);
     addAndMakeVisible (metronome);
     
     parameters.setProperty (juce::Identifier {"masterTempo"}, 120.f, nullptr);
@@ -32,7 +33,7 @@ MainComponent::MainComponent() : metronome (parameters)
 
 MainComponent::~MainComponent()
 {
-    // This shuts down the audio device and clears the audio source.
+    metronome.signalThreadShouldExit();
     shutdownAudio();
 }
 
@@ -48,7 +49,7 @@ void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRat
 
     // For more details, see the help for AudioProcessor::prepareToPlay()
     
-    metronome.setBufferSize (samplesPerBlockExpected);
+    metronome.setBufferSettings (samplesPerBlockExpected, sampleRate);
 }
 
 //==============================================================================
@@ -59,15 +60,15 @@ void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& buffe
     //bufferToFill.clearActiveBufferRegion();
     
     juce::AudioBuffer<float>& buffer          = *bufferToFill.buffer;
-//    juce::AudioBuffer<float>& metronomeBuffer = metronome.getBuffer();
-//
-//    int numChannels = buffer.getNumChannels();
-//    int numSamples  = buffer.getNumSamples();
-//
-//    for (int channel = 0; channel < numChannels; ++channel)
-//    {
-//        buffer.addFrom (channel, 0, metronomeBuffer, 0, 0, numSamples);
-//    }
+    juce::AudioBuffer<float>& metronomeBuffer = metronome.getBuffer();
+
+    int numChannels = buffer.getNumChannels();
+    int numSamples  = buffer.getNumSamples();
+
+    for (int channel = 0; channel < numChannels; ++channel)
+    {
+        buffer.addFrom (channel, 0, metronomeBuffer, 0, 0, numSamples);
+    }
 
 } // end of processing
 
