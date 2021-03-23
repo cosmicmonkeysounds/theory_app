@@ -1,13 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <JUCERPROJECT id="xmicn3" name="RhythmApp" projectType="guiapp" useAppConfig="0"
-              addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1">
+              addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" cppLanguageStandard="14"
+              defines="JUCE_USE_MP3AUDIOFORMAT">
   <MAINGROUP id="AWmmt8" name="RhythmApp">
+    <GROUP id="{F158C5E7-6919-828A-8BE4-62C6C3086EB7}" name="Sounds">
+      <FILE id="gTZAOS" name="Click1.wav" compile="0" resource="1" file="../../../Downloads/Click1.wav"/>
+    </GROUP>
     <GROUP id="{1C27C599-C0C2-0A75-2639-EA2FBD924093}" name="Source">
+      <GROUP id="{1F1E6845-D98D-F642-4987-99401A92E482}" name="MusicLogic">
+        <FILE id="eF5yIG" name="Measure.h" compile="0" resource="0" file="Source/Measure.h"/>
+      </GROUP>
       <GROUP id="{B8279F89-6A75-20A6-0421-895E710DF3E7}" name="Metronome">
         <FILE id="YV4CMa" name="MetronomeWidget.h" compile="0" resource="0"
               file="Source/MetronomeWidget.h"/>
         <FILE id="dRwO93" name="Metronome.h" compile="0" resource="0" file="Source/Metronome.h"/>
+        <FILE id="Yr2YWn" name="MetronomeVisualiser.h" compile="0" resource="0"
+              file="Source/MetronomeVisualiser.h"/>
         <FILE id="oGBrei" name="MetronomeButton.h" compile="0" resource="0"
               file="Source/MetronomeButton.h"/>
         <FILE id="ycCAN3" name="PlayButton.h" compile="0" resource="0" file="Source/PlayButton.h"/>
@@ -151,6 +160,6 @@
             useGlobalPath="1"/>
   </MODULES>
   <LIVE_SETTINGS>
-    <OSX/>
+    <OSX buildEnabled="0"/>
   </LIVE_SETTINGS>
 </JUCERPROJECT>

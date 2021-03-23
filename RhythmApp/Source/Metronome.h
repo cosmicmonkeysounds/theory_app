@@ -17,102 +17,156 @@ public:
     
     //==============================================================================
 
-    Metronome () {}
-    Metronome (float s) : subdivision (s)
+    Metronome ()
     {
+        //formatManager.clearFormats();
+        formatManager.registerBasicFormats();
+        
+//        for (auto it = formatManager.begin(); it != formatManager.end(); ++it)
+//            DBG (it->getFormatName());
+            
+        
+        //DBG (formatManager.getNumKnownFormats());
+        
+        for (int voice = 0; voice < numVoices; ++voice)
+        {
+            sampler.addVoice (new juce::SamplerVoice());
+        }
+        
+    }
+    
+    Metronome (int s, float t)
+    {
+        setTempo       (t);
+        setSubdivision (s);
         Metronome();
     }
     
-    ~Metronome()                            = default;
+    ~Metronome()
+    {
+        formatReader = nullptr;
+    }
     
-    Metronome            (const Metronome&) = default;
-    Metronome& operator= (const Metronome&) = default;
+    Metronome (const Metronome& other)
+    {
+        setTempo       (other.tempo);
+        setSubdivision (other.subdivision);
+        
+        sampler.clearVoices();
+        
+        for (int voice = 0; voice < other.sampler.getNumVoices(); ++voice)
+        {
+            sampler.addVoice (other.sampler.getVoice (voice));
+        }
     
-    Metronome            (Metronome&&)      = default;
-    Metronome& operator= (Metronome&&)      = default;
+        formatManager.clearFormats();
+        formatManager.registerBasicFormats();
+
+        if (other.formatReader != nullptr)
+        {
+            formatReader = other.formatReader;
+        }
+    }
+    
+    Metronome& operator= (const Metronome& other)
+    {
+        setTempo       (other.tempo);
+        setSubdivision (other.subdivision);
+        
+        sampler.clearVoices();
+        
+        for (int voice = 0; voice < other.sampler.getNumVoices(); ++voice)
+        {
+            sampler.addVoice (other.sampler.getVoice (voice));
+        }
+    
+        formatManager.clearFormats();
+        formatManager.registerBasicFormats();
+
+        if (other.formatReader != nullptr)
+        {
+            formatReader = other.formatReader;
+        }
+
+        return *this;
+    }
+
+    //==============================================================================
+    
+    int   getSubdivision         () { return subdivision; }
+    float getSubdivisionInMillis () { return subdivisionInMillis; }
+    
+    void setTempo (float t)
+    {
+        tempo = t;                          // 240 = 4 * 60 = four quarters @ 60bpm,
+        wholeNoteDuration = tempo / 240.f;  // aka: duration of 1 whole note @ 1 beat per second
+    }
+    
+    void setSubdivision (int s)
+    {
+        subdivision = s;
+        float subdivisionInHertz   = wholeNoteDuration * (float)subdivision;
+        float subdivisionInSeconds = 1.f / subdivisionInHertz;
+              subdivisionInMillis  = subdivisionInSeconds * 1000.f;
+    }
     
     //==============================================================================
     
-    juce::AudioBuffer<float>& getBuffer()
+    void trigger()
     {
-        // just playing a burst white noise, for now,
-        // later this will use | someSynthOrSampler.trigger(); | interface
-        if (shouldPlayTick())
+        DBG ("\nblip");
+//        sampler.noteOn (1, 60, 127);
+    }
+    
+    void loadSample (bool defaultSound)
+    {
+        if (defaultSound)
         {
-            float* channelData = buffer.getWritePointer(0);
-            for (int sampleIndex = 0; sampleIndex < buffer.getNumSamples(); ++sampleIndex )
-            {
-                float& sample = channelData[sampleIndex];
-                sample = random.nextFloat();
-            }
+            formatReader = formatManager.createReaderFor (juce::File {"../../../../Sounds/Click1.wav"});
         }
         
         else
         {
-            buffer.clear();
+            juce::FileChooser chooser {"Please pick a sample to use"};
+            if (chooser.browseForFileToOpen())
+                formatReader = formatManager.createReaderFor (chooser.getResult());
         }
         
-        return buffer;
+        juce::BigInteger range;
+        range.setRange (0, 128, true);
+        
+        const int    c3      = 60;
+        const double attack  = 0.1;
+        const double release = 1.0;
+        const double maxTime = release;
+        
+        sampler.addSound (new juce::SamplerSound ("Sample", *formatReader, range,
+                                                  c3, attack, release, maxTime));
     }
-
+    
     //==============================================================================
     
-    void  resetTiming    ()                  { timeOfLastTick = timeSinceLastTick - getSubdivisionInMillis(); }
-    void  setTempo       (float t)           { tempo = t; }
-    void  setSubdivision (float s)           { subdivision = s; }
-    float getSubdivision ()                  { return subdivision; }
-    void  setBufferSize  (int newNumSamples) { buffer.setSize (1, newNumSamples); }
-
+    juce::int64 timeOfLastTick  {juce::Time::currentTimeMillis()};
+    
+    juce::Synthesiser sampler;
+    const int numVoices = 3;
+    
     //==============================================================================
-
+    
 private:
     
     //==============================================================================
     
-    float tempo       {120.f};
-    float subdivision {4.f};
-
-    //==============================================================================
+    int   subdivision  {4};
+    float tempo        {120.f};
+    float subdivisionInMillis;
+    float wholeNoteDuration;
     
-    juce::int64 timeOfLastTick    {juce::Time::currentTimeMillis()};
-    juce::int64 timeSinceLastTick {juce::Time::currentTimeMillis()};
-
-    //==============================================================================
+    juce::File click;
     
-    juce::AudioBuffer<float> buffer;
-    juce::Random random;
-
-    //==============================================================================
+    juce::AudioFormatManager formatManager;
+    juce::AudioFormatReader* formatReader {nullptr};
     
-    bool shouldPlayTick()
-    {
-        timeSinceLastTick = juce::Time::currentTimeMillis();
-        juce::int64 dt    = timeSinceLastTick - timeOfLastTick;
-        
-        if (dt > getSubdivisionInMillis())
-        {
-            timeOfLastTick = timeSinceLastTick;
-            return true;
-        }
-        
-        return false;
-    }
-    
-    
-    float getWholeNoteDuration()
-    {
-        // 240 = 4 * 60 = four quarters @ 60bpm,
-        // aka: duration of 1 whole note @ 1 beat per second
-        return tempo / 240.f;
-    }
-    
-    float getSubdivisionInMillis()
-    {
-        float  subdivisionInHertz   = getWholeNoteDuration() * subdivision;
-        float  subdivisionInSeconds = 1.f / subdivisionInHertz;
-        return subdivisionInSeconds * 1000.f;
-    }
-
     //==============================================================================
     
 };

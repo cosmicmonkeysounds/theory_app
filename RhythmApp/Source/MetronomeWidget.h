@@ -18,29 +18,39 @@
 #include "MetronomeButton.h"
 #include "PlayButton.h"
 #include "MetronomeLabel.h"
+#include "MetronomeVisualiser.h"
 
-class MetronomeWidget  : public juce::Component, juce::Value::Listener
+class MetronomeWidget  : public juce::Component,
+                         public juce::Value::Listener,
+                         public juce::Thread
 {
 public:
     
     //==============================================================================
     
-    MetronomeWidget (juce::ValueTree& p) : parameters (p)
+    MetronomeWidget (juce::ValueTree& p) : Thread ("Metronome Thread"), parameters (p)
     {
-        masterTempo.setValue         (120.f);
         masterTempo.addListener      (this);
         metronomePlaying.addListener (this);
         
-        addNewMetronome (4.f);
+        masterTempo.setValue (120.f);
                 
         addAndMakeVisible (incTempoBtn);
         addAndMakeVisible (decTempoBtn);
         addAndMakeVisible (tempoLabel);
         addAndMakeVisible (playButton);
+        
+        addAndMakeVisible (visualiser);
+        
+        setPriority (realtimeAudioPriority);
+        startThread ();
+        
+        audioBuffer.clear();
     }
     
     ~MetronomeWidget() override
     {
+        stopThread (100);
         masterTempo.removeListener (this);
     }
     
@@ -48,7 +58,7 @@ public:
 
     void paint (juce::Graphics& g) override
     {
-        auto area        = getLocalBounds().toFloat();
+        auto  area       = getLocalBounds().toFloat();
         float cornerSize = 10.f;
         
         g.setColour            (juce::Colours::white);
@@ -61,6 +71,8 @@ public:
         int  width  = r.getWidth();
         int  height = r.getHeight();
         
+        visualiser.setBounds  (r.removeFromBottom (height*0.2));
+        
         float buttonWidth = width * 0.3;
         decTempoBtn.setBounds (r.removeFromLeft  (buttonWidth));
         incTempoBtn.setBounds (r.removeFromRight (buttonWidth));
@@ -69,8 +81,33 @@ public:
         tempoLabel.setBounds  (r.removeFromTop (tempoLabelHeight));
         playButton.setBounds  (r.reduced (5, 5));
     }
-
-    //==============================================================================
+    
+    void run() override
+    {
+        while (true)
+        {
+            
+            yield();
+            if (threadShouldExit())
+                return;
+            
+            if (metronomePlaying.getValue())
+            {
+                currentTime = juce::Time::currentTimeMillis();
+                for (auto kvPair = metronomes.begin(); kvPair != metronomes.end(); ++kvPair)
+                {
+                    auto& m = kvPair->second;
+                    juce::int64 dt = currentTime - m.timeOfLastTick;
+                    if (dt > m.getSubdivisionInMillis())
+                    {
+                        m.trigger();
+                        m.timeOfLastTick = currentTime;
+                    }
+                }
+            }
+            
+        }
+    }
     
     void valueChanged (juce::Value& value) override
     {
@@ -80,38 +117,17 @@ public:
     
     //==============================================================================
     
-    void setBufferSize (int newBufferSize)
+    void setBufferSettings (int newBufferSize, double sampleRate)
     {
-        buffer.setSize (2, newBufferSize);
-
+        audioBuffer.setSize (2, newBufferSize);
+        
         for (auto kvPair = metronomes.begin(); kvPair != metronomes.end(); ++kvPair)
         {
             auto& m = kvPair->second;
-            m.setBufferSize (newBufferSize);
-        }
-            
-    }
-    
-    juce::AudioBuffer<float>& getBuffer()
-    {
-        buffer.clear();
-
-        int numChannels = buffer.getNumChannels();
-        int numSamples  = buffer.getNumSamples();
-        
-        if (metronomePlaying.getValue())
-        {
-            for (auto kvPair = metronomes.begin(); kvPair != metronomes.end(); ++kvPair)
-            {
-                auto& m       = kvPair->second;
-                auto& mBuffer = m.getBuffer();
-
-                for (int channel = 0; channel < numChannels; ++channel)
-                    buffer.addFrom (channel, 0, mBuffer, 0, 0, numSamples);
-            }
+            m.sampler.setCurrentPlaybackSampleRate (sampleRate);
+            m.loadSample (true);
         }
         
-        return buffer;
     }
 
     //==============================================================================
@@ -132,37 +148,48 @@ public:
         for (auto kvPair = metronomes.begin(); kvPair != metronomes.end(); ++kvPair)
         {
             auto& m = kvPair->second;
-            m.resetTiming();
+            m.timeOfLastTick = 0;
         }
     }
     
     //==============================================================================
-    
-    void addNewMetronome (Metronome& newMetronome)
+        
+    void addNewMetronome (int subdivision)
     {
-        metronomes[newMetronome.getSubdivision()] = newMetronome;
-    }
-    
-    void addNewMetronome (float subdivision)
-    {
-        Metronome m {subdivision};
-        addNewMetronome (m);
+        Metronome m  {subdivision, masterTempo.getValue()};
+        metronomes[subdivision] = m;
     }
     
     //==============================================================================
+    
+    juce::AudioBuffer<float>& getBuffer()
+    {
+        //DBG ("hello");
+        for (auto kvPair = metronomes.begin(); kvPair != metronomes.end(); ++kvPair)
+        {
+            auto& m = kvPair->second;
+            m.sampler.renderNextBlock (audioBuffer, midiBuffer, 0, audioBuffer.getNumSamples());
+        }
+        
+        return audioBuffer;
+    }
     
 private:
     
     //==============================================================================
 
     std::map<float, Metronome> metronomes;
-    juce::AudioBuffer<float> buffer;
+    
+    juce::AudioBuffer<float> audioBuffer;
+    juce::MidiBuffer midiBuffer;
+    
+    juce::int64 currentTime = juce::Time::currentTimeMillis();
     
     //==============================================================================
     
     juce::ValueTree& parameters;
-    juce::Value masterTempo      {parameters.getPropertyAsValue ("masterTempo", nullptr)};
-    juce::Value metronomePlaying {parameters.getPropertyAsValue ("metronomePlaying", nullptr)};
+    juce::Value      masterTempo      {parameters.getPropertyAsValue ("masterTempo",      nullptr)};
+    juce::Value      metronomePlaying {parameters.getPropertyAsValue ("metronomePlaying", nullptr)};
     
     //==============================================================================
     
@@ -170,6 +197,8 @@ private:
     MetronomeButton incTempoBtn {masterTempo, MetronomeButton::Type::Increment};
     MetronomeButton decTempoBtn {masterTempo, MetronomeButton::Type::Decrement};
     PlayButton      playButton  {metronomePlaying};
+    
+    MetronomeVisualiser visualiser {3};
     
     //==============================================================================
     
